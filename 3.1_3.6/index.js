@@ -80,12 +80,23 @@ let persons = [
         error: 'name missing' 
       })
     }
+
+    const isNamePresent = persons.find(p => p.name == body.name)
+
+    if(isNamePresent){
+        return response.status(400).json({ 
+            error: 'name must be unique' 
+          })
+    }
   
     const person = {
       name: body.name,
       number: body.number,
       id: generateId(),
     }
+
+
+
   
     persons = persons.concat(person)
   
