@@ -27,8 +27,8 @@ let persons = [
 ]
 
   const generateId = () => {
-    const maxId = notes.length > 0
-      ? Math.max(...notes.map(n => Number(n.id)))
+    const maxId = persons.length > 0
+      ? Math.max(...persons.map(n => Number(n.id)))
       : 0
     return String(maxId + 1)
   }
@@ -66,6 +66,30 @@ let persons = [
         <p>Phonebook has info for ${numberOfPersons} people</p>
         <p>${actualTime}</p>
         </div>`)
+  })
+
+  app.post('/api/persons', (request, response) => {
+    const body = request.body
+  
+    if (!body.number) {
+      return response.status(400).json({ 
+        error: 'number missing' 
+      })
+    }else if(!body.name){
+      return response.status(400).json({ 
+        error: 'name missing' 
+      })
+    }
+  
+    const person = {
+      name: body.name,
+      number: body.number,
+      id: generateId(),
+    }
+  
+    persons = persons.concat(person)
+  
+    response.json(person)
   })
 
 
