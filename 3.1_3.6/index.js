@@ -52,6 +52,13 @@ let persons = [
       }
   })
 
+  app.delete('/api/persons/:id', (request, response) => {
+    const id = request.params.id
+    persons = persons.filter(note => note.id != id)
+  
+    response.status(204).end()
+  })
+
   app.get('/info', (request, response) => {
     const numberOfPersons = persons.length
     const actualTime = new Date()
