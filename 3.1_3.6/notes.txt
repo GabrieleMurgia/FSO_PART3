@@ -1,0 +1,32 @@
+
+The HTTP standard talks about two properties related to request types, safety and idempotency.
+hat the GET and HEAD methods SHOULD NOT have the significance of taking an action other than retrieval. These methods ought to be considered "safe".
+
+Methods can also have the property of "idempotence" in that the side-effects of N > 0 identical requests is the same as for a single request. 
+The methods GET, HEAD, PUT and DELETE share this property
+
+If we make an HTTP PUT request to the URL /api/notes/10 and with the request we send the data { content: "no side effects!", important: true }, 
+the result is the same regardless of how many times the request is sent.
+
+Middleware
+The Express json-parser used earlier is a middleware.
+Middleware are functions that can be used for handling request and response objects.
+
+In practice, you can use several middlewares at the same time. When you have more than one, 
+they're executed one by one in the order that they were listed in the application code.
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+const requestLogger = (request, response, next) => {
+  console.log('Method:', request.method)
+  console.log('Path:  ', request.path)
+  console.log('Body:  ', request.body)
+  console.log('---')
+  next()
+}
+
+app.use(requestLogger)
