@@ -42,6 +42,15 @@ let persons = [
     //With Express, this is no longer required, because this transformation happens automatically.
   })
 
+  app.get('/info', (request, response) => {
+    const numberOfPersons = persons.length
+    const actualTime = new Date()
+    response.send(`<div>
+        <p>Phonebook has info for ${numberOfPersons} people</p>
+        <p>${actualTime}</p>
+        </div>`)
+  })
+
 
 
 const PORT = 3001
