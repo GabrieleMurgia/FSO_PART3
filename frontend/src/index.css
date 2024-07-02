@@ -1,0 +1,8 @@
+ .toast-message{
+  color: green;
+  font-size: 20px;
+  border: 2px solid green;
+  border-radius: 10px;
+  background-color: rgb(194, 194, 194);
+  padding: 20px;
+ }
