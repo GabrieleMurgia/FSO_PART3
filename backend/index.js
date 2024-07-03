@@ -5,6 +5,7 @@ const morgan = require('morgan');
 
 app.use(express.json()) 
 app.use(morgan('tiny'));
+app.use(express.static('dist'))
 
 
 morgan.token('post-data', (req) => {
@@ -116,7 +117,7 @@ let persons = [
 
 
 
-const PORT = 3000
+  const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
