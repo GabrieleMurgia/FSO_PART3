@@ -1,12 +1,13 @@
 const express = require('express')
 const app = express()
 const morgan = require('morgan');
+const mongoose = require('mongoose')
+require('dotenv').config();
 
 
 app.use(express.json()) 
 app.use(morgan('tiny'));
 app.use(express.static('dist'))
-
 
 morgan.token('post-data', (req) => {
     return req.method === 'POST' ? JSON.stringify(req.body) : '';
@@ -15,7 +16,12 @@ morgan.token('post-data', (req) => {
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post-data'));
 
 
-let persons = [
+//DB 
+//Person
+const Person = require('./models/person')
+//
+
+/*let persons = [
     { 
       "id": "1",
       "name": "Arto Hellas", 
@@ -36,7 +42,7 @@ let persons = [
       "name": "Mary Poppendieck", 
       "number": "39-23-6423122"
     }
-]
+]*/
 
   const generateId = () => {
     const maxId = persons.length > 0
@@ -50,7 +56,11 @@ let persons = [
   })
 
   app.get('/api/persons', (request, response) => {
-    response.json(persons) //In the earlier version where we were only using Node, we had to transform the data into the JSON formatted string with the JSON.stringify method:
+    Person.find({}).then(result => { 
+      response.json(result)
+      /*mongoose.connection.close()*/
+    })
+     //In the earlier version where we were only using Node, we had to transform the data into the JSON formatted string with the JSON.stringify method:
     //With Express, this is no longer required, because this transformation happens automatically.
   })
 
@@ -93,31 +103,32 @@ let persons = [
       })
     }
 
-    const isNamePresent = persons.find(p => p.name == body.name)
+    /*const isNamePresent = persons.find(p => p.name == body.name)
 
     if(isNamePresent){
         return response.status(400).json({ 
             error: 'name must be unique' 
           })
-    }
+    }*/
   
-    const person = {
+    const person = new Person({
       name: body.name,
       number: body.number,
-      id: generateId(),
-    }
+      })
 
+    /*persons = persons.concat(person)
+    response.json(person)*/
 
-
-  
-    persons = persons.concat(person)
-  
-    response.json(person)
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+      debugger
+    })
+    
   })
 
 
 
-  const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+  const PORT = process.env.PORT || 3000
+  app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
