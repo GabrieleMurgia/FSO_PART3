@@ -118,7 +118,6 @@ const Person = require('./models/person')
 
     /*persons = persons.concat(person)
     response.json(person)*/
-
     person.save().then(savedPerson => {
       response.json(savedPerson)
       debugger
