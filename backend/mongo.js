@@ -30,9 +30,6 @@ if (process.argv.length == 3) {
     mongoose.connection.close()
   })
 
-
-//Person.find({ important: true }).then(result => {
-  // ...})
 }else{
   const newName = process.argv[3]
   const newNumber = process.argv[4]
