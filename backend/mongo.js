@@ -25,9 +25,9 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema)
 
-if (process.argv.length == 3) {
+if (process.argv.length === 3) {
   //Since the parameter is an empty object{} we get all of the notes stored in the notes collection.
-  Person.find({}).then(result => { 
+  Person.find({}).then(result => {
     result.forEach(note => {
       console.log(note)
     })
@@ -39,14 +39,14 @@ if (process.argv.length == 3) {
   const newNumber = process.argv[4]
 
   const person = new Person({
-  name: newName,
-  number: newNumber,
+    name: newName,
+    number: newNumber,
   })
 
 
   person.save().then(result => {
-  console.log(`added ${newName} number ${newNumber} to phonebook`)
-  mongoose.connection.close()
+    console.log(`added ${newName} number ${newNumber} to phonebook`,result)
+    mongoose.connection.close()
   })
 }
 
