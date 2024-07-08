@@ -1,6 +1,6 @@
-const ToastMessage = ({ message }) => {
+const ToastMessage = ({ message , isError }) => {
     return (
-      <p className="toast-message">{message}</p>
+      <p className={!isError ? "toast-message" : 'error-message'}>{message}</p>
     )
   }
   

@@ -12,6 +12,7 @@ const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState(0)
+  const [isError,setIsError] = useState(false)
 
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
@@ -44,9 +45,10 @@ const App = () => {
         update(personToUpdate)
         .then(updatedPerson => {  
           let updatedPersons = persons.map(person => {
-            if(person.id === updatedPerson.id){
+            if(person.id === updatedPerson.result.id){
               handleShowToast(`Updated ${updatedPerson.name} number`)
-              return updatedPerson
+              setIsError(false)
+              return {...updatedPerson.result,number:newNumber}
             }else{
               return person
             }})
@@ -55,6 +57,8 @@ const App = () => {
             setPersons(updatedPersons)
         })
         .catch(err =>{
+          handleShowToast(`${err.response.data.error}`)
+          setIsError(true)
           console.error(err)
         })
       }
@@ -62,17 +66,23 @@ const App = () => {
       let newObj = {
         name:newName,
         number:newNumber,
-        id:JSON.stringify(filteredPersons.length + 1)
       }
 
       create(newObj)
-      .then(req => {
-        handleShowToast(`Added ${req.name}`)
-        req.data
-      })
+      .then(res => {
+        handleShowToast(`Added ${res.name}`)
+        setIsError(false)
+        newObj.id = res.id
 
       setFilteredPersons(filteredPersons.concat(newObj))
       setPersons(filteredPersons.concat(newObj))
+      })
+      .catch(error => {
+        handleShowToast(`${error.response.data.error}`)
+        setIsError(true)
+        console.log(error.response.data.error)
+      })
+      
     }
   }
 
@@ -101,8 +111,9 @@ const App = () => {
   function handleDeletePerson(person){
     if (window.confirm(`Delete ${person.name} ?`)) {
       deletePerson(person.id)
-      .then(deletedPerson => {  
-        let fPersons = persons.filter(aPerson => aPerson.id != deletedPerson.id)
+      .then(response => {
+        let deletedPersonId = response.result.id
+        let fPersons = persons.filter(aPerson => aPerson.id != deletedPersonId)
         setFilteredPersons(fPersons)
         setPersons(fPersons)
       })
@@ -123,7 +134,7 @@ function handleOnlyNumberValues(cValue){
   return (
     <div>
       <h2>Phonebook</h2>
-      { showToast ? <ToastMessage message={toastMessage}></ToastMessage> : null}
+      { showToast ? <ToastMessage isError={isError} message={toastMessage}></ToastMessage> : null}
       <Filter text={'filter shown with'} onHandleFilter={handleFilterPersons}/>
       <h2>add a new</h2>
       <PersonForm onSumbitForm={handleSumbmitNewName} number={newNumber} onChangeNumber={handleChangeNewValue} name={newName} onChangeName={handleChangeNewValue}/>

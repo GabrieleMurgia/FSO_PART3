@@ -1,7 +1,6 @@
 const express = require('express')
 const app = express()
 const morgan = require('morgan');
-const mongoose = require('mongoose')
 require('dotenv').config();
 
 app.use(express.static('dist'))
@@ -32,7 +31,7 @@ const Person = require('./models/person')
 
   app.get('/api/persons/:id', (request, response, next) => {
     const id = request.params.id
-    Person.findById(request.params.id)
+    Person.findById(request.params.id,{ new: true, runValidators: true, context: 'query' })
     .then(person => {
       if (person) {
         response.json(person)
@@ -45,7 +44,7 @@ const Person = require('./models/person')
 
   app.delete('/api/persons/:id', (request, response, next) => {
     const id = request.params.id
-    Person.findByIdAndDelete(id)
+    Person.findByIdAndDelete(id,{ new: true, runValidators: true, context: 'query' })
     .then(result => {
       response.status(200).json({ message: 'Person deleted', result:result});
     })
@@ -64,7 +63,7 @@ const Person = require('./models/person')
       .catch(error => next(error))
   })
 
-  app.post('/api/persons', (request, response) => {
+  app.post('/api/persons', (request, response, next) => {
     debugger
     const body = request.body
 
@@ -86,6 +85,7 @@ const Person = require('./models/person')
     person.save().then(savedPerson => {
       response.json(savedPerson)
     })
+    .catch(error => next(error))
     
   })
 
@@ -102,7 +102,7 @@ const Person = require('./models/person')
       name: body.name,
       number: body.number,
     }
-    Person.findByIdAndUpdate(request.params.id, person)
+    Person.findByIdAndUpdate(request.params.id, person,{ new: true, runValidators: true, context: 'query' })
       .then(updatedPerson => {
         if (updatedPerson) {
           response.status(200).json({ message: 'Person number updated', result:updatedPerson});
@@ -113,13 +113,25 @@ const Person = require('./models/person')
       .catch(error => next(error))
   })
 
+//Custom Validator
+const phoneValidator = [
+  {
+    validator: function (v) {
+      return /\d{2,3}-\d{5,}/.test(v);
+    },
+    message: props => `${props.value} is not a valid phone number!`
+  }
+];
+
 //Error Middleware it has to be the last loaded middleware, also all the routes should be registered before the error-handler!
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+  }else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
 
   next(error)
 }
